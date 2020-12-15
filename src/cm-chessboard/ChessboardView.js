@@ -119,7 +119,7 @@ export class ChessboardView {
         if (this.chessboard.props.style.showBorder) {
             this.borderSize = this.width / 32
         } else {
-            this.borderSize = this.width / 320
+            this.borderSize = 0
         }
         this.innerWidth = this.width - 2 * this.borderSize
         this.innerHeight = this.height - 2 * this.borderSize
