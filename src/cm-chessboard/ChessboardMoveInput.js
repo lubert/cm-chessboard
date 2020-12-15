@@ -18,6 +18,11 @@ const STATE = {
     reset: 7
 }
 
+export const MOVE_CANCELED_REASON = {
+    secondClick: "secondClick",
+    movedOutOfBoard: "movedOutOfBoard"
+}
+
 const DRAG_THRESHOLD = 2
 
 export class ChessboardMoveInput {
@@ -83,9 +88,9 @@ export class ChessboardMoveInput {
                 break
 
             case STATE.clickTo:
-                if (this.dragablePiece) {
-                    Svg.removeElement(this.dragablePiece)
-                    this.dragablePiece = null
+                if (this.draggablePiece) {
+                    Svg.removeElement(this.draggablePiece)
+                    this.draggablePiece = null
                 }
                 if (prevState === STATE.dragTo) {
                     this.view.setPieceVisibility(params.index)
@@ -105,7 +110,7 @@ export class ChessboardMoveInput {
                 }
                 if (this.props.moveInputMode === MOVE_INPUT_MODE.dragPiece) {
                     this.view.setPieceVisibility(params.index, false)
-                    this.createDragablePiece(params.piece)
+                    this.createDraggablePiece(params.piece)
                 }
                 break
 
@@ -115,7 +120,7 @@ export class ChessboardMoveInput {
                 }
                 if (this.props.moveInputMode === MOVE_INPUT_MODE.dragPiece) {
                     this.view.setPieceVisibility(params.index, false)
-                    this.createDragablePiece(params.piece)
+                    this.createDraggablePiece(params.piece)
                 }
                 break
 
@@ -150,9 +155,9 @@ export class ChessboardMoveInput {
                 this.endIndex = null
                 this.movedPiece = null
                 this.updateStartEndMarkers()
-                if (this.dragablePiece) {
-                    Svg.removeElement(this.dragablePiece)
-                    this.dragablePiece = null
+                if (this.draggablePiece) {
+                    Svg.removeElement(this.draggablePiece)
+                    this.draggablePiece = null
                 }
                 if (this.pointerMoveListener) {
                     window.removeEventListener(this.pointerMoveListener.type, this.pointerMoveListener)
@@ -170,26 +175,27 @@ export class ChessboardMoveInput {
         }
     }
 
-    createDragablePiece(pieceName) {
-        if (this.dragablePiece) {
-            throw Error("dragablePiece exists")
+    createDraggablePiece(pieceName) {
+        if (this.draggablePiece) {
+            throw Error("draggablePiece exists")
         }
-        this.dragablePiece = Svg.createSvg(document.body)
-        this.dragablePiece.setAttribute("width", this.view.squareWidth)
-        this.dragablePiece.setAttribute("height", this.view.squareHeight)
-        this.dragablePiece.setAttribute("style", "pointer-events: none")
-        this.dragablePiece.name = pieceName
-        const piece = Svg.addElement(this.dragablePiece, "use", {
-            href: `#${pieceName}`
+        this.draggablePiece = Svg.createSvg(document.body)
+        this.draggablePiece.classList.add("cm-chessboard-draggable-piece")
+        this.draggablePiece.setAttribute("width", this.view.squareWidth)
+        this.draggablePiece.setAttribute("height", this.view.squareHeight)
+        this.draggablePiece.setAttribute("style", "pointer-events: none")
+        this.draggablePiece.name = pieceName
+        const piece = Svg.addElement(this.draggablePiece, "use", {
+            href: `${this.props.sprite.url}#${pieceName}`
         })
         const scaling = this.view.squareHeight / this.props.sprite.grid
-        const transformScale = (this.dragablePiece.createSVGTransform())
+        const transformScale = (this.draggablePiece.createSVGTransform())
         transformScale.setScale(scaling, scaling)
         piece.transform.baseVal.appendItem(transformScale)
     }
 
-    moveDragablePiece(x, y) {
-        this.dragablePiece.setAttribute("style",
+    moveDraggablePiece(x, y) {
+        this.draggablePiece.setAttribute("style",
             `pointer-events: none; position: absolute; left: ${x - (this.view.squareHeight / 2)}px; top: ${y - (this.view.squareHeight / 2)}px`)
     }
 
@@ -197,16 +203,17 @@ export class ChessboardMoveInput {
         if (e.type === "mousedown" && e.button === 0 || e.type === "touchstart") {
             const index = e.target.getAttribute("data-index")
             const pieceElement = this.view.getPiece(index)
-            if(pieceElement) {
-                // allow scrolling, if not pointed on piece
-                e.preventDefault()
+            let pieceName, color
+            if (pieceElement) {
+                pieceName = pieceElement.getAttribute("data-piece")
+                color = pieceName ? pieceName.substr(0, 1) : null
+                // allow scrolling, if not pointed on draggable piece
+                if (color === "w" && this.state.inputWhiteEnabled ||
+                    color === "b" && this.state.inputBlackEnabled) {
+                    e.preventDefault()
+                }
             }
             if (index !== undefined) {
-                let pieceName, color
-                if (pieceElement) {
-                    pieceName = pieceElement.getAttribute("data-piece")
-                    color = pieceName ? pieceName.substr(0, 1) : null
-                }
                 if (this.moveInputState !== STATE.waitForInputStart ||
                     this.state.inputWhiteEnabled && color === "w" ||
                     this.state.inputBlackEnabled && color === "b") {
@@ -259,7 +266,7 @@ export class ChessboardMoveInput {
                     this.setMoveInputState(STATE.dragTo, {index: this.startIndex, piece: this.movedPiece})
                 }
                 if (this.props.moveInputMode === MOVE_INPUT_MODE.dragPiece) {
-                    this.moveDragablePiece(x, y)
+                    this.moveDraggablePiece(x, y)
                 }
             }
         } else if (this.moveInputState === STATE.dragTo || this.moveInputState === STATE.clickDragTo || this.moveInputState === STATE.clickTo) {
@@ -277,7 +284,7 @@ export class ChessboardMoveInput {
                 this.updateStartEndMarkers()
             }
             if (this.props.moveInputMode === MOVE_INPUT_MODE.dragPiece && (this.moveInputState === STATE.dragTo || this.moveInputState === STATE.clickDragTo)) {
-                this.moveDragablePiece(x, y)
+                this.moveDraggablePiece(x, y)
             }
         }
     }
@@ -311,12 +318,12 @@ export class ChessboardMoveInput {
                     this.setMoveInputState(STATE.clickTo, {index: index})
                 } else if (this.moveInputState === STATE.secondClickThreshold) {
                     this.setMoveInputState(STATE.reset)
-                    this.moveCanceledCallback()
+                    this.moveCanceledCallback(MOVE_CANCELED_REASON.secondClick, index)
                 }
             } else {
                 this.view.drawPiecesDebounced()
                 this.setMoveInputState(STATE.reset)
-                this.moveCanceledCallback()
+                this.moveCanceledCallback(MOVE_CANCELED_REASON.movedOutOfBoard, undefined)
             }
         } else {
             this.view.drawPiecesDebounced()
@@ -335,7 +342,12 @@ export class ChessboardMoveInput {
         this.view.drawMarkersDebounced()
     }
 
-    destroy() {
+    reset() {
         this.setMoveInputState(STATE.reset)
     }
+
+    destroy() {
+        this.reset()
+    }
+
 }

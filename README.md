@@ -3,8 +3,8 @@
 A Lightweight, ES6 module based, responsive, mobile friendly SVG chessboard **without dependencies**. It works on desktop (current versions of Chrome, Firefox, Safari, Edge),
 and mobile (Android and iOS).
 
-cm-chessboard is the new chessboard for the upcoming 'version 3' of
-[chessmail.eu](https://www.chessmail.eu) / [chessmail.de](https://www.chessmail.de), which is currently in development.
+cm-chessboard is the main chessboard of 
+[chessmail.eu](https://www.chessmail.eu) / [chessmail.de](https://www.chessmail.de), and is used every day by thousands of users.
 
 ## Features
 
@@ -24,9 +24,9 @@ cm-chessboard is the new chessboard for the upcoming 'version 3' of
 
 ## Install
 
-**Option 1:** Download from [GitHub](https://github.com/shaack/cm-chessboard) and run `npm install`, or
+**Option 1:** Install the [npm package](https://www.npmjs.com/package/cm-chessboard) with `npm install cm-chessboard`, or
 
-**Option 2:** Install the [npm package](https://www.npmjs.com/package/cm-chessboard) with `npm install --save cm-chessboard`
+**Option 2:** Download the code from [GitHub](https://github.com/shaack/cm-chessboard) and run `npm install`.
 
 After installation, copy the `cm-chessboard/assets/images/chessboard-sprite.svg` to your projects `assets/images` folder.
 If you put the sprite somewhere else you have to configure the location in `props.sprite.url`.
@@ -63,6 +63,7 @@ props = {
         cssClass: "default",
         showCoordinates: true, // show ranks and files
         showBorder: false, // display a border around the board
+        aspectRatio: 0.9 // height/width. Set to null, if you want to define it only in the css.
     },
     responsive: false, // resizes the board on window resize, if true
     animationDuration: 300, // pieces animation duration in milliseconds
@@ -210,9 +211,14 @@ board.enableContextInput((event) => {
 
 Disables the context input.
 
+## Usage with react
+
+There exists a ticket from someone who is using cm-chessboard with react:
+https://github.com/shaack/cm-chessboard/issues/20 
+
 ## Licenses
 
-- License for the code: [MIT](https://github.com/shaack/cm-chessboard/blob/master/LICENSE), 
-License for the SVG-pieces [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).
+- License for the code: [MIT](https://github.com/shaack/cm-chessboard/blob/master/LICENSE)
+- License for the SVG-pieces: [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/)
 
 

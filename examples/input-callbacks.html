@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <title>cm-chessboard</title>
     <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1.0"/>
-    <link rel="stylesheet" href="../styles/page.css"/>
+    <link rel="stylesheet" href="./examples.css"/>
     <link rel="stylesheet" href="../styles/cm-chessboard.css"/>
     <script nomodule src="../node_modules/browser-es-module-loader/dist/babel-browser-build.js"></script>
     <script nomodule src="../node_modules/browser-es-module-loader/dist/browser-es-module-loader.js"></script>
 </head>
 <body>
 <h1><a href="../">cm-chessboard</a></h1>
-<h2>Example: Context input, mark squares</h2>
+<h2>Example: Context input, mark squares and log left click (primary click)</h2>
 <p>Toggle marker on context input. First board, context input only. Second board, move input and context input
     enabled.</p>
 <div class="board" id="board1"></div>
@@ -23,12 +23,16 @@ const board1 = new Chessboard(document.getElementById("board1"), {
     sprite: {url: "../assets/images/chessboard-sprite.svg"}
 })
 board1.enableContextInput((event) => {
+    console.log(event)
     const markersOnSquare = board1.getMarkers(event.square, MARKER_TYPE.emphasize)
     if (markersOnSquare.length > 0) {
         board1.removeMarkers(event.square, MARKER_TYPE.emphasize)
     } else {
         board1.addMarker(event.square)
     }
+})
+board1.onPrimaryInput((event) => {
+    console.log(event)
 })
 </pre>
 <script type="module">
@@ -39,12 +43,16 @@ board1.enableContextInput((event) => {
         sprite: {url: "../assets/images/chessboard-sprite.svg"}
     })
     board1.enableContextInput((event) => {
+        console.log("ContextInput board1", event)
         const markersOnSquare = board1.getMarkers(event.square, MARKER_TYPE.emphasize)
         if (markersOnSquare.length > 0) {
             board1.removeMarkers(event.square, MARKER_TYPE.emphasize)
         } else {
             board1.addMarker(event.square)
         }
+    })
+    board1.enableBoardClick((event) => {
+        console.log("boardClick board1", event)
     })
 
     const board2 = new Chessboard(document.getElementById("board2"), {
@@ -53,16 +61,21 @@ board1.enableContextInput((event) => {
         orientation: COLOR.black,
         moveInputMode: MOVE_INPUT_MODE.dragPiece
     })
-    board2.enableMoveInput(() => {
+    board2.enableMoveInput((event) => {
+        console.log("MoveInput board2", event)
         return true
     })
     board2.enableContextInput((event) => {
+        console.log("ContextInput board2", event)
         const markersOnSquare = board2.getMarkers(event.square, MARKER_TYPE.emphasize)
         if (markersOnSquare.length > 0) {
             board2.removeMarkers(event.square, MARKER_TYPE.emphasize)
         } else {
             board2.addMarker(event.square)
         }
+    })
+    board2.enableBoardClick((event) => {
+        console.log("boardClick board2", event)
     })
 
 </script>
